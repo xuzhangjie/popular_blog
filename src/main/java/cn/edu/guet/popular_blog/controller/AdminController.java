@@ -2,6 +2,7 @@ package cn.edu.guet.popular_blog.controller;
 
 import cn.edu.guet.popular_blog.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,6 +20,7 @@ public class AdminController {
     private AdminService adminService;
 
 
+    @PreAuthorize("hasAuthority('/employee/basic1/**')")
     @ResponseBody
     @GetMapping("/test")
     public String test(){

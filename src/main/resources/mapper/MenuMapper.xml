@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.guet.popular_blog.mapper.MenuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.edu.guet.popular_blog.pojo.Menu">
+        <id column="id" property="id" />
+        <result column="url" property="url" />
+        <result column="path" property="path" />
+        <result column="component" property="component" />
+        <result column="name" property="name" />
+        <result column="iconCls" property="iconCls" />
+        <result column="keepAlive" property="keepAlive" />
+        <result column="requireAuth" property="requireAuth" />
+        <result column="parentId" property="parentId" />
+        <result column="enabled" property="enabled" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, url, path, component, name, iconCls, keepAlive, requireAuth, parentId, enabled
+    </sql>
+
+
+    <select id="selectMenuByRole" resultType="string" parameterType="list">
+        select m.url
+        FROM t_admin AS a
+        LEFT JOIN t_admin_role AS ar
+        ON a.id = ar.adminId
+        LEFT JOIN t_role AS r
+        ON ar.rid = r.id
+        LEFT JOIN t_menu_role AS mr
+        ON r.id = mr.rid
+        LEFT JOIN t_menu AS m
+        ON m.id = mr.mid
+        WHERE a.username=#{username}
+    </select>
+
+</mapper>

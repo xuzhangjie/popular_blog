@@ -3,8 +3,11 @@
 <mapper namespace="cn.edu.guet.popular_blog.mapper.AdminMapper">
 
     <select id="test" resultType="cn.edu.guet.popular_blog.dto.LoginDTO">
-        select * from t_user
+        select * from t_admin
     </select>
 
+    <select id="insertOneAdmin" statementType="CALLABLE" parameterType="string">
+        {call proc_register(#{username,mode=IN},#{password,mode=IN})}
+    </select>
 
 </mapper>
