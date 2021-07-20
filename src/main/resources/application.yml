@@ -2,39 +2,39 @@ server:
   port: 8989
 
 spring:
-  # Êı¾İÔ´ÅäÖÃ
+  # æ•°æ®æºé…ç½®
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/myblog?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
-    # ÓÃÁË×Ô´øµÄÁ¬½Ó³Ø
+    # ç”¨äº†è‡ªå¸¦çš„è¿æ¥æ± 
     hikari:
-      # Á¬½Ó³ØÃû
+      # è¿æ¥æ± å
       pool-name: DateHikariCP
-      # ×îĞ¡¿ÕÏĞÁ¬½ÓÊı
+      # æœ€å°ç©ºé—²è¿æ¥æ•°
       minimum-idle: 5
-      # ¿ÕÏĞÁ¬½Ó´æ»î×î´óÊ±¼ä£¬Ä¬ÈÏ600000(10·ÖÖÓ)
+      # ç©ºé—²è¿æ¥å­˜æ´»æœ€å¤§æ—¶é—´ï¼Œé»˜è®¤600000(10åˆ†é’Ÿ)
       idle-timeout: 180000
-      # ×î´óÁ¬½ÓÊı£¬Ä¬ÈÏ10
+      # æœ€å¤§è¿æ¥æ•°ï¼Œé»˜è®¤10
       maximum-pool-size: 10
-      # ´ÓÁ¬½Ó³Ø·µ»ØµÄÁ¬½ÓµÄ×Ô¶¯Ìá½»
+      # ä»è¿æ¥æ± è¿”å›çš„è¿æ¥çš„è‡ªåŠ¨æäº¤
       auto-commit: true
-      # Á¬½Ó×î´ó´æ»îÊ±¼ä£¬Ä¬ÈÏ1800000£¨30·ÖÖÓ£©
+      # è¿æ¥æœ€å¤§å­˜æ´»æ—¶é—´ï¼Œé»˜è®¤1800000ï¼ˆ30åˆ†é’Ÿï¼‰
       max-lifetime: 1800000
-      # Á¬½Ó³¬Ê±Ê±¼ä£¬Ä¬ÈÏ30000£¨30Ãë£©
+      # è¿æ¥è¶…æ—¶æ—¶é—´ï¼Œé»˜è®¤30000ï¼ˆ30ç§’ï¼‰
       connection-timeout: 30000
-      # ²âÊÔÁ¬½ÓÊÇ·ñ¿ÉÓÃµÄ²éÑ¯Óï¾ä
+      # æµ‹è¯•è¿æ¥æ˜¯å¦å¯ç”¨çš„æŸ¥è¯¢è¯­å¥
       connection-test-query: SELECT 1
 
 
 mybatis-plus:
-  # ÅäÖÃMapperÓ³ÉäÎÄ¼ş
+  # é…ç½®Mapperæ˜ å°„æ–‡ä»¶
   mapper-locations: classpath*:/mapper/*Mapper.xml
-  # ÅäÖÃMybatisÊı¾İ·µ»ØÀàĞÍ±ğÃû
+  # é…ç½®Mybatisæ•°æ®è¿”å›ç±»å‹åˆ«å
   type-aliases-package: cn.edu.guet.popular_blog.pojo
   configuration:
-    # ×Ô¶¯ÍÕ·åÃüÃû
+    # è‡ªåŠ¨é©¼å³°å‘½å
     map-underscore-to-camel-case: false
 
 
@@ -44,11 +44,11 @@ logging:
 
 
 jwt:
-  # JWT´æ´¢µÄÇëÇóÍ·
+  # JWTå­˜å‚¨çš„è¯·æ±‚å¤´
   tokenHeader: Authorization
-  # JWT ¼Ó½âÃÜÊ¹ÓÃµÄÃÜÔ¿
+  # JWT åŠ è§£å¯†ä½¿ç”¨çš„å¯†é’¥
   secret: yeb-secret
-  # JWTµÄ³¬ÆÚÏŞÊ±¼ä£¨60*60*24£©24Ğ¡Ê±
+  # JWTçš„è¶…æœŸé™æ—¶é—´ï¼ˆ60*60*24ï¼‰24å°æ—¶
   expiration: 604800
-  # JWT ¸ºÔØÖĞÄÃµ½¿ªÍ·
+  # JWT è´Ÿè½½ä¸­æ‹¿åˆ°å¼€å¤´
   tokenHead: Bearer
