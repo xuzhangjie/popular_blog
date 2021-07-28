@@ -65,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                    .antMatchers("/login","/logout","/getImage","/register").permitAll()
+                    .antMatchers( "/login","/logout","/getImage","/register").permitAll()
                     .anyRequest().permitAll()
                 .and()
                 .headers()
@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(restfulAccessDeniedHandler)
                 .authenticationEntryPoint(restAuthorizationEntryPoint);
 
+        http.headers().frameOptions().sameOrigin();
     }
 
     @Override

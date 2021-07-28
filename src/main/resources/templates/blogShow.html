@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{../css/blogShow.css}"/>
+    <script type="text/javascript" th:src="@{../js/jquery-3.6.0.min.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        var imgAddres = "D:/AllCode/popular_blog/src/main/resources/static/img/"
+      returnComments();
+            /*  $("#haha").click=function () {
+            var info={"comment":$(".comment-content").val(),"blogid":[[${blog.id}]]}; console.log(info);
+            /!*   $.ajax({
+            type: 'POST', /!*方法类型*!/
+            dataType: "JSON", /!*预期服务器返回的数据类型*!/
+            url: '/submitComment', /!*请求地址*!/
+            data: JSON.stringify(info),
+            asyn:true,
+            contentType: 'application/json,charset=utf-8',
+            success: function (result) { } });*!/ };*/
+      $("#comBtn").onclick=function () {
+          console.log("hahah");
+      }
+    function returnComments() {
+        var info = [[${blog.id}]];
+        $.ajax({
+            type: 'GET', /*方法类型*/
+            dataType: "JSON", /*预期服务器返回的数据类型*/
+            url: '/getAllComment?blogid=' + info, /*请求地址*/
+            contentType: 'charset=utf-8',
+            success: function (result) {
+                var objs = eval(result);
+                $(objs).each(function (index) { /*动态生成DOM脚本，实现评论区域生成*/
+                    var obj = objs[index];
+                    var yijiId = "yiji" + index;
+                    erjiId = "erji" + index;
+                    console.log(obj);
+                    var line = $("<li id=" + yijiId + "></li>");
+                    $("#comment-list").append(line);
+                    $(line).append($("<a href='javascript:void(0)' id='userlink'><img id='userimg' src='/image/" + obj.user.imgPath + "'/></a><span id='username'>" + obj.user.username + "</span><span id='icon'><img id='comment-icon' src='/pageimage/线性对话.svg'>回复&nbsp;&nbsp;&nbsp;&nbsp;</img><img id='comment-icon' src='/pageimage/线性点赞.svg'>" + obj.fabulous + "</img></span>"));
+                    var dom = $("<div id='comment'>" + obj.comment + "<span class='blog-commenttime'>" + obj.commenttime.toString().substr(0, 10) + "</span></div>");
+                    $(line).append(dom);
+                    if (obj.replyComments != null) {
+                        $("#" + yijiId).append($("<ul id='" + erjiId + "'></ul>"));
+                        erji(obj.replyComments)
+                    }
+                });/*请求成功后回调 $('#test1').html(JSON.stringify(result));*/
+            },
+            error: function () {/*请求失败后回调*/
+                $('#test1').html('接口异常，请联系管理员！');
+            },
+        });
+
+        function erji(objs) {
+            $(objs).each(function (index) {
+                var obj = objs[index];
+                var line2 = $("<li ></li>");
+                $("#" + erjiId).append(line2);
+                $(line2).append($("<a href='javascript:void(0)' id='userlink'><img id='userimg' src='/image/" + obj.user.imgPath + "'/></a><span id='username'>" + obj.user.username + "&nbsp;回复&nbsp;" + obj.parentName + "</span><span id='icon'><img id='comment-icon' src='/pageimage/线性对话.svg'>回复&nbsp;&nbsp;&nbsp;&nbsp;</img><img id='comment-icon' src='/pageimage/线性点赞.svg'>" + obj.fabulous + "</img></span>"));
+                var dom = $("<div id='comment'>" + obj.comment + "<span class='blog-commenttime'>" + obj.commenttime.toString().substr(0, 10) + "</span></div>");
+                $(line2).append(dom);
+                if (obj.replyComments != null) {
+                    erji(obj.replyComments);
+                }
+            });
+        }
+    }
+    </script>
+</head>
+<body>
+<div class="main">
+    <!--博客文章-->
+    <div class="blog-content"><h1 th:text="${blog.title}"></h1>
+        <p th:text="${blog.text}"></p>
+    </div>
+
+    <!--评论部分-->
+    <div class="blog-comment">
+        <!--写评论-->
+        <div>
+                <img src="/pageimage/u=1700087280,4149155541&fm=26&fmt=auto&gp=0.webp"/>
+                <textarea class="comment-content" placeholder="优质评论可以帮助作者获得更高权重" maxlength="255"></textarea>
+
+                    <button id="comBtn" type="button">提交</button>
+
+        </div>
+        <!--评论显示区域-->
+        <div>
+                    <div id="comment-table"><!--评论显示-->
+                        <ul id="comment-list"></ul>
+                    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

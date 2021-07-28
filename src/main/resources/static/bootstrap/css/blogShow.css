@@ -1,0 +1,59 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "montserrat";
+    background-image: linear-gradient(
+            125deg,
+            #e4ffcd,
+            #6dd5fa,
+            #2980b9,
+            #e4ffcd
+    );
+    background-size: 400%;
+    animation: bganimation 15s infinite;
+}
+
+.shiyanlou {
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 400px 0;
+    font-size: 22px;
+}
+
+@keyframes bganimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+.main{
+    position: relative;
+}
+
+.blog-content{
+    background-color: azure;
+    margin: 0 auto;
+    width: 800px;
+}
+
+.blog-comment{
+    background-color: azure;
+    margin: 0 auto;
+    width: 800px;
+    height: 1000px;
+}
+
+#comment-table tr td{
+    border: #6dd5fa;
+    border: solid;
+
+}

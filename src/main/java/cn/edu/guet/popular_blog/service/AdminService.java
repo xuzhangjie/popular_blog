@@ -23,4 +23,7 @@ public interface AdminService extends IService<Admin> {
     RespBean login(String username, String password);
 
     RespBean register(RegisterDTO registerDTO, HttpServletRequest httpServletRequest);
+
+    Admin loginNoHash(String username,String password);
+
 }

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>博客详情</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{../css/me.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{../lib/tocbot/tocbot.css}">
+    <script type="text/javascript" th:src="@{../js/jquery-3.6.0.min.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        var page=1;
+
+        $(function() {
+            pid=-1;
+            pageNumber();
+            returnComments();
+
+        })
+
+
+            $(document).on('click', '#commentBtn', function(e) {
+                var info3 = {"comment": $("#writer").val(), "blogid": [[${blog.id}]],"pid":pid};
+                $.ajax({
+                    type: 'POST',                            /*方法类型*/
+                    dataType: "JSON",                       /*预期服务器返回的数据类型*/
+                    data: JSON.stringify(info3),
+                    url: '/submitComment',   /*请求地址*/
+                    beforeSend: function (XMLHttpRequest) {
+                        XMLHttpRequest.setRequestHeader("Authorization", localStorage.token);
+                    },
+                    contentType: 'application/json;charset=utf-8',
+                    success: function (result) {
+                        pid=-1;
+                        var state=eval(result);
+                        document.getElementById("writer").value="";
+                        $("#writer").attr("placeholder","请输入评论信息");
+                        pageNumber();
+                        returnComments();
+                    },
+                    error:function (result) {
+                       confirm("登录后才可以评论");
+                    }
+                });
+
+            });
+
+
+        $(document).on('click', '#page-left', function(e) {
+            if(page>1){
+                page=page-1;
+                returnComments();
+                document.getElementById("page").innerHTML=page;
+            }
+        })
+        $(document).on('click', '#page-right', function(e) {
+
+            if(page< document.getElementById("allpage").innerHTML){
+                page=page+1;
+                returnComments();
+                document.getElementById("page").innerHTML=page;
+            }
+        })
+
+
+        $(document).on('click', '.reply', function(e) {
+                console.log("回复点击"+this.name);
+           var info=this.name.split("&");
+           $("#writer").attr("placeholder","回复@"+info[1]);
+           pid=info[0];
+        });
+
+        $(document).on('click', '#fabulous-icon', function(e) {
+             var id=this.name;
+             var number=parseInt(document.getElementById("fabulousNumbr"+id).innerText);
+             var p=document.getElementById("fabulousNumbr"+id);
+
+            if(this.src.toString().search("transparentfabulous.svg")>0){
+                $(this).attr("src","/pageimage/redfabulous.png");
+                number=number+1;
+
+            }else{
+                $(this).attr("src","/pageimage/transparentfabulous.svg");
+                number=number-1;
+            }
+            p.innerText=number;
+            var info2={"id":this.name,"number":number};
+            $.ajax({
+                type: 'POST',                            /*方法类型*/
+                dataType: "JSON",                       /*预期服务器返回的数据类型*/
+                data: JSON.stringify(info2),
+                url: '/updateFabulous',   /*请求地址*/
+                contentType: 'application/json;charset=utf-8',
+                success: function (result) {
+                    if(result.code === 401){
+                        alert("meidenglu")
+                    }
+                    pid=-1;
+                }
+            });
+
+        });
+
+        $(document).on('click', '#showmore', function(e) {  //子级回复块的隐藏与显示
+           var id="secondLevel"+this.name;
+            if($("#"+id).attr("display")=="none"){
+                $("#"+id).show();
+            }else{
+                $("#"+id).toggle();
+
+            }
+        });
+
+        function pageNumber() {
+            var info4= [[${blog.id}]];
+            $.ajax({
+                type: 'GET',                            /*方法类型*/
+                dataType:"JSON" ,                /*预期服务器返回的数据类型*/
+                url: '/commentNumber?blogid=' + info4,   /*请求地址*/
+                contentType: 'charset=utf-8',
+                success: function (result) {
+                    var number = eval(result);
+                    document.getElementById("allpage").innerHTML=number;
+                }
+                    });
+
+            }
+
+
+
+
+        function returnComments() {
+            var info1={"blogid":[[${blog.id}]],"page":page}
+            $.ajax({
+                type: 'POST',                            /*方法类型*/
+                dataType:"JSON" ,                /*预期服务器返回的数据类型*/
+                url: '/getAllComment',   /*请求地址*/
+                data:JSON.stringify(info1),
+                contentType: 'application/json;charset=utf-8',
+                success: function (result) {
+                    $("#comment-list").remove();
+                    var root=$("<div class='ui threaded comments' id='comment-list'><h3  class='ui dividing header'>评论</h3></div>");
+                    $("#comment-lists").append(root);
+                    var objs = eval(result);
+                    $(objs).each(function (index) {     /*动态生成DOM脚本，实现评论区域生成*/
+                        var obj = objs[index];
+                        console.log(obj);
+                        var first = "firstLevel" + index;
+                        var second = "secondLevel" + index;
+                        var divWapper = $("<div class='comment' id='" + first + "'></div>");
+                        $("#comment-list").append(divWapper);
+                        $(divWapper).append($("<a class='ui avatar image'> <img src='/image/" + obj.user.imgPath + "'></a>"));
+                        var divContent = $("<div class='content'></div>");
+                        $(divWapper).append(divContent);
+                        $(divContent).append($("<a class='author'>" + obj.user.username + "</a>"));
+                        var divData = $("<div class='metadata'><span class='date'>" + obj.commenttime.toString().substr(0, 10) + "</span></div>");
+                        $(divContent).append($("<div class='metadata' id='fabulousSpan'><img id='fabulous-icon' name='"+obj.id+"' src='/pageimage/transparentfabulous.svg'><p  id='fabulousNumbr"+obj.id+"'>"+obj.fabulous+"</p></div>"));
+                        $(divContent).append(divData);
+                        var divText = $("<div class='text'>" + obj.comment + "</div>");
+                        $(divContent).append(divText);
+                        var divActions = $("<div class='actions'><a class='reply'  name='"+obj.user.id+"&"+obj.user.username+"'>评论</a><a href='javascript:void(0)' name='"+index+"' id='showmore' >回复("+obj.replyComments.length+")</a></div>")
+                        $(divContent).append(divActions);
+                        if (obj.replyComments != null) {
+                            $("#" + first).append($("<div class='comments' id='" +second+ "'></div>"));
+                            erji(obj.replyComments,second);
+                        }
+                    });
+                }
+            });
+        }
+
+            function erji(objs,second) {
+                $(objs).each(function (index) {
+                    var obj = objs[index];
+                    var divWap = $("<div class='comment'></div>");
+                    $("#" + second).append(divWap);
+                    $(divWap).append($("<a class='ui avatar image'><img src='/image/"+obj.user.imgPath+"'></a>"));
+                    var divCont = $("<div class='content' class='author'><a class='author'>" + obj.user.username + "</a>&nbsp;&nbsp;&nbsp;@&nbsp;"+obj.parentName+"</div>");
+                    $(divWap).append(divCont)
+                    var divDat = $("<div class='metadata'><span class='date'>" + obj.commenttime.toString().substr(0, 10) + "</span></div>");
+                    $(divCont).append($("<div class='metadata' id='fabulousSpan'><img id='fabulous-icon' name='" + obj.id + "' src='/pageimage/transparentfabulous.svg'><p  id='fabulousNumbr" + obj.id + "'>" + obj.fabulous + "</p></div>"));
+                    $(divCont).append(divDat);
+                    var divTe = $("<div class='text'>" + obj.comment + "</div>");
+                    $(divCont).append(divTe);
+                    var divAct = $("<div class='actions'><a class='reply' name='" + obj.user.id + "&" + obj.user.username + "'>评论</a><a href='javascript:void(0)' >回复("+obj.replyComments.length+")</a></div>");
+                    $(divCont).append(divAct);
+                    if (obj.replyComments != null) {
+                        erji(obj.replyComments,second);
+
+                    }
+                });
+            }
+
+
+   /*$(document).on('click', '#writer', function(e) {
+       var sessionParam = '[[${session.loginuser}]]';
+       if(sessionParam!=null){
+           console.log(sessionParam);
+           var event = event || window.event;      //兼容问题
+           stopBuble(event);       //调用阻止事件冒泡函数
+           $(".mask").show();
+           $(".login").show();
+
+           }
+
+
+    })*/
+
+        function stopBuble(e) {     //阻止事件冒泡函数
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            } else {
+                e.cancelBubble = true;
+            }
+        }
+
+        $(document).on('click', '#close', function(e) {
+            var event = event || window.event;      //兼容问题
+            stopBuble(event);       //调用阻止事件冒泡函数
+            $(".mask").toggle();
+            $(".login").toggle();
+
+        })
+
+
+        </script>
+</head>
+<body>
+        <!--导航栏-->
+
+        <nav  class="ui attached   segment  m-padded-tb-mini m-shadow-small">
+            <div  class="ui   container">
+
+                <div class="ui   secondary stackable menu">
+                    <h2 class="ui red header item">LQ15——Blog</h2>
+                    <a href="#" class="m-black-font m-item item m-mobile-hide">首页</a>
+                    <a href="#" class="m-item item m-mobile-hide">博客</a>
+                    <a href="#" class="m-item item m-mobile-hide">专栏课程</a>
+                    <a href="#" class="m-item item m-mobile-hide">下载</a>
+                    <a href="#" class="m-item item m-mobile-hide">问答</a>
+                    <a href="#" class="m-item item m-mobile-hide">社区</a>
+                    <a href="#" class="m-item item m-mobile-hide">插件</a>
+                    <a href="#" class="m-item item m-mobile-hide">认证</a>
+                    <div class="center item m-mobile-hide">
+                        <div class="ui icon input ">
+
+                            <input type="text" placeholder="Search">
+                            <i class="search circular link icon"></i>
+
+                        </div>
+                    </div>
+                    <div class="right item m-mobile-hide">
+                        <a href="#" class="m-item item m-mobile-hide">登录/注册</a>
+                        <a href="#" class="m-item item m-mobile-hide">收藏</a>
+                        <a href="#" class="m-item item m-mobile-hide">消息</a>
+
+                            <div class="ui inverted  menu">
+                                <div class="ui m-red">
+                                <a href="#" class="inverted m-item item m-mobile-hide">创作中心</a>
+                                </div>
+
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </nav>
+        <!--中间内容-->
+        <div id="waypoint" class="m-container-big m-padded " >
+            <div class="ui fluid container "><!--这个semantic的容器有响应式的效果-->
+                <div class="ui stackable grid">
+                    <!--左边博客专栏-->
+                    <div class="four wide column left ">
+                        <!--用户信息-->
+                        <div class="ui m-margin-top  segments">
+                            <div class="ui secondary segment ">
+                                <div class="ui two column grid">
+                                    <div class="text m-margin-top">
+                                        <img class="ui avatar image" src="/pageimage/face.jpg">
+                                        用户
+                                    </div>
+                                </div>
+                                    <!--分割线-->
+                                    <div class="ui horizontal divider">
+                                        ---
+                                    </div>
+                                    <div class="ui five column grid">
+                                        <div class="column">
+                                            192
+                                            <p>原创</p>
+                                        </div>
+                                        <div class="column">
+                                            3
+                                            <p>周排名</p>
+                                        </div>
+                                        <div class="column">
+                                            336
+                                            总排名
+                                        </div>
+                                        <div class="column">
+                                            269万+
+                                            访问
+                                        </div>
+                                        <div class="column">
+                                            8
+                                            等级
+                                        </div>
+                                    </div>
+
+                                        <!--分割线-->
+                                    <div class="ui horizontal divider">
+                                            ---
+                                        </div>
+                                    <div class="ui five column  grid">
+                                    <div class="column">
+                                        3万+
+                                        <p>积分</p>
+                                    </div>
+                                    <div class="column">
+                                        4万+
+                                        粉丝
+                                    </div>
+                                    <div class="column">
+                                        1万+
+                                        获赞
+                                    </div>
+                                    <div class="column">
+                                        6593
+                                        评论
+                                    </div>
+                                    <div class="column">
+                                        1万+
+                                        收藏
+                                    </div>
+                                </div>
+
+                                    <!--按钮-->
+                                    <div class="inline fields m-padded">
+                                        <div class="ui two column grid">
+                                            <div class="column">
+                                                <button type="button" class="ui fluid rounded button">私信</button>
+                                            </div>
+                                            <div class="column">
+                                                <button type="button" class="ui fluid rounded button">关注</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                    </div>
+                        <!--搜索文章-->
+                        <div class="ui m-margin-top segments">
+
+                                <div class="ui icon fluid inverted m-padded-tiny input ">
+                                    <input type="text" placeholder="搜索博主文章">
+                                    <i class="search  link icon"></i>
+                                </div>
+
+                        </div>
+
+                        <!--热门文章-->
+                        <div class="ui segments m-margin-top">
+                                <div class="ui secondary segment">
+                                    <div class="ui two column grid">
+                                        <div class="column">
+                                           热门文章
+                                        </div>
+
+                                    </div>
+                                </div>
+                            <div class="ui m-padded-tb segment">
+                                            <div class="ui three column grid">
+                                                <div class="column">
+                                                    <a href="#" target="_blank" class="m-black m-text-thin">用户故事</a>
+                                                </div>
+
+                                                <div class=" two column ">
+                                                    <i class="eye icon right aligned">1570</i>
+                                                </div >
+                                            </div>
+                                        </div>
+                            <div class="ui segment">
+                                <div class="ui three column grid">
+                                    <div class="column">
+                                        <a href="#" target="_blank" class="m-black m-text-thin">用户故事</a>
+                                    </div>
+
+                                    <div class=" two column ">
+                                        <i class="eye icon right aligned">1570</i>
+                                    </div >
+                                </div>
+                            </div>
+                            <div class="ui segment">
+                                <div class="ui three column grid">
+                                    <div class="column">
+                                        <a href="#" target="_blank" class="m-black m-text-thin">用户故事</a>
+                                    </div>
+
+                                    <div class=" two column ">
+                                        <i class="eye icon right aligned">1570</i>
+                                    </div >
+                                </div>
+                            </div>
+                            <div class="ui segment">
+                                <div class="ui three column grid">
+                                    <div class="column">
+                                        <a href="#" target="_blank" class="m-black m-text-thin">用户故事</a>
+                                    </div>
+
+                                    <div class=" two column ">
+                                        <i class="eye icon right aligned">1570</i>
+                                    </div >
+                                </div>
+                            </div>
+
+                        </div>
+                        <!--二维码-->
+
+                        <h4 class="ui horizontal divider header m-margin-top-large">
+                            扫码关注我
+                        </h4>
+                        <div class="ui centered card" style="width: 11em">
+                            <img src="/pageimage/wechat.png" alt="" class="ui rounded image">
+                        </div>
+                    </div>
+                    <!--登录框-->
+                    <div id="passportbox" class="mask" >
+                        <div class="login">
+                            <iframe width="410" height="427" name="passport_iframe" src="https://passport.csdn.net/login?code=mobile" frameborder="0" scrolling="no">
+                            </iframe>
+                            <span id="close" style="display: inline-block; color: rgb(153, 153, 153); font-size: 22px; cursor: pointer; position: absolute; top: 2%; right: 5%; user-select: none;">×</span>
+                        </div>
+
+                    </div>
+                    <!--中间博客内容-->
+                    <div class="eight wide middle column ">
+                        <div class="ui top attached center aligned m-margin-top segment">
+                            <h2>标题</h2>
+                        </div>
+                            <div id="content" class="ui attached segment js-toc-content">
+                                <p>
+                                    <h1 >面试题3： 10亿个数中找出最大的100000个数（top K问题）</h1>
+                                      先拿100000个数建堆，然后一次添加剩余元素，如果大于堆顶的数（100000中最小的），将这个数替换堆顶，并调整结构使之仍然是一个最小堆，这样，遍历完后，堆中的100000个数就是所需的最大的100000个。建堆时间复杂度是O(m)，算法的时间复杂度为1次建堆时间+n次堆调整时间=O(m+nlogm)=O(nlogm)（n为10亿，m为100000）。
+
+                                      优化的方法：可以把所有10亿个数据分组存放，比如分别放在1000个文件中。这样处理就可以分别在每个文件的10^6个数据中找出最大的100000个数，合并到一起在再找出最终的结果。
+
+                                    top K问题
+
+                                      在大规模数据处理中，经常会遇到的一类问题：在海量数据中找出出现频率最好的前k个数，或者从海量数据中找出最大的前k个数，这类问题通常被称为top K问题。例如，在搜索引擎中，统计搜索最热门的10个查询词；在歌曲库中统计下载最高的前10首歌等。
+
+                                      针对top K类问题，通常比较好的方案是分治+Trie树/hash+小顶堆（就是上面提到的最小堆），即先将数据集按照Hash方法分解成多个小数据集，然后使用Trie树活着Hash统计每个小数据集中的query词频，之后用小顶堆求出每个数据集中出现频率最高的前K个数，最后在所有top K中求出最终的top K。
+
+                                    <h2>对于有10亿个整数，如何找出其中最大的10万个这个问题</h2>
+
+                                      最容易想到的方法是将数据全部排序，然后在排序后的集合中进行查找，最快的排序算法的时间复杂度一般为O（nlogn），如快速排序。但是如果按每个int类型占4个字节，10亿个整数就要占用4G的存储空间，对于一些java运行内存小于4G的计算机而言，直接OOM（out of memory）了。其实即使内存能够满足要求（我机器内存都是8GB），该方法也并不高效，因为题目的目的是寻找出最大的100000个数即可，而排序却是将所有的元素都排序了，做了很多的无用功。
+
+                                      第二种方法为局部淘汰法，该方法与排序方法类似，用一个容器保存前100000个数，然后将剩余的所有数字——与容器内的最小数字相比，如果所有后续的元素都比容器内的100000个数还小，那么容器内这个100000个数就是最大100000个数。如果某一后续元素比容器内最小数字大，则删掉容器内最小元素，并将该元素插入容器，最后遍历完这1亿个数，得到的结果容器中保存的数即为最终结果了。此时的时间复杂度为O（n+m^2），其中m为容器的大小，即100000。
+
+                                      第三种方法是分治法，将10亿个数据分成1000份，每份100万个数据，找到每份数据中最大的100000个，最后在剩下的1000 * 100000个数据里面找出最大的100000个。如果100万数据选择足够理想，那么可以过滤掉1亿数据里面99%的数据。100万个数据里面查找最大的100000个数据的方法如下：用快速排序的方法，将数据分为2堆，如果大的那堆个数N大于100000个，继续对大堆快速排序一次分成2堆，如果大的那堆个数N大于100000个，继续对大堆快速排序一次分成2堆，如果大堆个数N小于100000个，就在小的那堆里面快速排序一次，找第100000-n大的数字；递归以上过程，就可以找到第10w大的数。参考上面的找出第10w大的数字，就可以类似的方法找到前100000大数字了。此种方法需要每次的内存空间为10^6*4=4MB，一共需要101次这样的比较。
+
+                                      第四种方法是Hash法。如果这1亿个书里面有很多重复的数，先通过Hash法，把这10亿个数字去重复，这样如果重复率很高的话，会减少很大的内存用量，从而缩小运算空间，然后通过分治法或最小堆法查找最大的100000个数。
+
+                                      第五种方法采用最小堆。首先读入前100000个数来创建大小为100000的最小堆，建堆的时间复杂度为O(m)（m为数组的大小即为100000），然后遍历后续的数字，并于堆顶（最小）数字进行比较。如果比最小的数小，则继续读取后续数字；如果比堆顶数字大，则替换堆顶元素并重新调整堆为最小堆。整个过程直至10亿个数全部遍历完为止。然后按照中序遍历的方式输出当前堆中的所有100000个数字。该算法的时间复杂度为O（nmlogm），空间复杂度是100000（常数）。
+
+                                </p>
+                                <p>
+                                    每日小结
+                                      今天我们复习了面试中常考的三个算法问题，你做到心中有数了么？对了，如果你的朋友也在准备面试，请将这个系列扔给他，如果他认真对待，肯定会感谢你的！！好了，今天就到这里，学废了的同学，记得在评论区留言：打卡。，给同学们以激励。
+                                </p>
+                            </div>
+                        <div id="comment-container" class="ui bottom  segment">
+                            <!--留言区域列表-->
+
+                            <div class="ui red segment" id="comment-lists">
+                                <div class="ui threaded comments" id="comment-list">
+                                    <h3  class="ui dividing header">评论</h3>
+
+
+                                </div>
+
+                            </div>
+                            <div class="ui" id="devide-page">
+                                <a href="javascript:void(0)" id="page-left"><i class="angle left icon red big" ></i></a>
+                                <a id="page" href="javascript:void(0)" >1</a><a>&nbsp;&nbsp;/&nbsp;&nbsp;</a><a href="javascript:void(0)"  id="allpage">23</a>
+                                <a href="javascript:void(0)" id="page-right"><i class="angle  right icon red big" ></i></a>
+                            </div>
+                            <div class="ui form">
+                                <div class="field">
+
+                                    <div class="field">
+                                        <input type="text" name="content" placeholder="请输入评论信息" id="writer">
+                                    </div>
+
+
+                                </div>
+                                <div class="ui basic right aligned segment">
+                                    <div class="field">
+                                        <div class="field  inline  m-mobile-wide m-margin-bottom-small m-mobile-wide">
+                                            <button class="ui red button m-mobile-wide" type="button" id="commentBtn"><i class="edit icon"></i>评论</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                     </div>
+                    <!--右边博客专栏-->
+                    <div class="four wide column right  ">
+                        <!--目录-->
+                        <div class="ui segments m-margin-top">
+                            <div class="ui secondary segment">
+                                <div class="ui two column grid">
+                                    <div class="column">
+                                        目录
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="ui segment">
+                                <ol class="js-toc">
+
+                                </ol>
+                            </div>
+
+
+
+                        </div>
+                        <!--标签-->
+                        <div class="ui segments m-margin-top">
+                            <div class="ui secondary segment">
+                                <div class="ui two column grid">
+                                    <div class="column">
+                                        <i class="tags icon"></i>标签
+                                    </div>
+                                    <div class="right aligned column">
+                                        <a href="#" target="_blank">more <i class="angle double right icon"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui red segment">
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    方法论 <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    财富自由 <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    刻意练习 <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    SpringBoot <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Mybatis <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Redis <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Redis <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Redis <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Redis <div class="detail">21</div>
+                                </a>
+                                <a href="#" target="_blank" class="ui red basic left pointing label m-margin-tb-tiny">
+                                    Redis <div class="detail">21</div>
+                                </a>
+
+
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+     </div>
+
+        <div id="toolbar" class="m-padded-big m-fixed m-right-bottom" style="display: none">
+            <div class="ui vertical icon buttons ">
+
+                <a href="#comment-container" class="ui red button">评论</a>
+
+                <div id="toTop-button" class="ui icon button"><i class="chevron up icon"></i></div>
+            </div>
+        </div>
+
+        <div class="ui flowing toc-container popup transition hidden" style="width: 250px !important;">
+
+            <ol class="js-toc">
+
+            </ol>
+        </div>
+        <!--底部元素-->
+        <footer class="ui inverted basic vertical segment m-padded-tb-huge m-shadow-small ">
+            <div class="ui center aligned container">
+                <div class="ui  divided stackable grid">
+                    <div class="two wide column m-text-thin m-text-spaced m-opacity-mini">
+                        <a href="#">关于我们</a>
+                    </div>
+                    <div class="two wide column">
+                        <a href="#">招贤纳士</a>
+                    </div>
+                    <div class="two wide column">
+                        <a href="#">广告服务</a>
+                    </div>
+                    <div class="two wide column">
+                        <a href="#">开发助手</a>
+                    </div>
+                    <div class="two wide column">
+                        <a href="#">在线客服</a>
+                    </div>
+                    <div class="two wide column">
+                        <a href="#">kefu@lq15.net</a>
+                    </div>
+                    <div class="three wide column">
+                        <a href="#">工作时间 8:30-22:00</a>
+                    </div>
+
+                </div>
+                <div class="ui inverted section divider m-padded"></div>
+                <p class="m-text-thin m-text-spaced m-opacity-tiny">Copyright@2021 LQ15 Designed By LQ15</p>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery.scrollto@2.1.3/jquery.scrollTo.min.js"></script>
+        <script type="text/javascript" th:src="@{../../lib/tocbot/tocbot.min.js}"></script>
+        <script type="text/javascript" th:src="@{../../lib/waypoints/jquery.waypoints.min.js}"></script>
+        <script>
+
+            tocbot.init({
+                // Where to render the table of contents.
+                tocSelector: '.js-toc',
+                // Where to grab the headings to build the table of contents.
+                contentSelector: '.js-toc-content',
+                // Which headings to grab inside of the contentSelector element.
+                headingSelector: 'h1, h2, h3',
+                // For headings inside relative or absolute positioned containers within content.
+                hasInnerContainers: true,
+            });
+
+            $('#toTop-button').click(function (){
+                $(window).scrollTo(0,600)
+            });
+            var waypoint = new Waypoint({
+                element: document.getElementById('waypoint'),
+                handler: function(direction) {
+                    if(direction=='down'){
+                        $('#toolbar').show(600);
+                    }else{
+                        $('#toolbar').hide(600);
+                    }
+                    console.log('Scrolled to waypoint!')
+                }
+            })
+        </script>
+</body>
+</html>

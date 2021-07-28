@@ -56,6 +56,8 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper,Admin> implements 
         return adminMapper.selectOne(new QueryWrapper<Admin>().eq("username",username).eq("enabled",true));
     }
 
+
+
     /**
      * @Description: 登录业务
      * @Param username: 用户名
@@ -103,5 +105,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper,Admin> implements 
         String password = passwordEncoder.encode(registerDTO.getPassword());
         adminMapper.insertOneAdmin(registerDTO.getUsername(),password);
         return RespBean.success("注册成功");
+    }
+
+    @Override
+    public Admin loginNoHash(String username, String password) {
+       return adminMapper.login(username,password);
+
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>博客登录</title>
@@ -13,7 +13,7 @@
 <body>
 <div class="container">
     <div class="form row">
-        <form class="form-horizontal col-sm-offset-3 col-md-offset-3">
+        <form class="form-horizontal col-sm-offset-3 col-md-offset-3" method="post" action="/login">
             <h3 class="form-title">登录</h3>
             <div class="col-sm-9 col-md-9">
                 <div class="form-group">
@@ -26,14 +26,21 @@
                     <i class="fa fa-key" aria-hidden="true"></i>
                     <input class="form-control " type="password" name="password" id="password" placeholder="请输入密码" required>
                 </div>
+                <!--        登录验证码           -->
+                <div class="form-group" id="verify-div">
+                    <input style="width: 100px" type="text" class="form-control" name="verifyCode" placeholder="验证码" required>
+                    <img  alt="单击图片刷新" class="pointer" src="/kaptcha" onclick="this.src='/kaptcha?d='+new Date()*1"/>
+
+                </div>
                 <!--        用超链接跳转到注册页面               -->
                 <div class="form-group">
                     <br>
                     <a href="register.html">没有账号？立即注册</a>
                 </div>
+
                 <!--         登录按钮           -->
                 <div class="form-group">
-                    <input type="button" value="登录" class="btn btn-success pull-right" id="login">
+                    <input type="submit" value="登录" class="btn btn-success pull-right" id="login">
                 </div>
             </div>
         </form>

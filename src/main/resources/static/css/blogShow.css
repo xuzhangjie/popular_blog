@@ -1,0 +1,167 @@
+*{
+    margin: 0;
+    padding: 0;
+
+}
+.blog-comment{
+    font-family: "Microsoft New Tai Lue";
+    font-size: 12px;
+}
+#username{
+    font-family:  "Microsoft New Tai Lue";
+    font-weight: bold;
+    font-size: 12px;
+}
+body {
+
+    font-family: "montserrat";
+    background-image: linear-gradient(
+            125deg,
+            #e4ffcd,
+            #6dd5fa,
+            #2980b9,
+            #e4ffcd
+    );
+    background-size: 400%;
+    animation: bganimation 15s infinite;
+}
+
+.shiyanlou {
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 400px 0;
+    font-size: 22px;
+}
+
+@keyframes bganimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+.main{
+    position: relative;
+}
+
+.blog-content{
+    background-color: azure;
+    margin: 0 auto;
+    width: 800px;
+}
+
+.blog-comment{
+
+    background-color: azure;
+    margin: 20px auto;
+    width: 800px;
+    height: 1000px;
+}
+
+ul li{
+    list-style: none;
+}
+#userimg{
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+
+}
+
+#userlink{
+    display: block;
+    float: left;
+    height: 30px;
+}
+
+#username{
+    display: block;
+    float: left;
+    height: 30px;
+    vertical-align: center;
+    padding-top: 0;
+    margin-left: 9px;
+    margin-top: 5px;
+
+}
+
+.blog-commenttime{
+    height: 30px;
+    font-size: 13px;
+    color: #999;
+    vertical-align: center;
+    display: inline-block;
+    margin-left: 8px;
+}
+#icon{
+    display: block;
+    float: right;
+    margin-right: 30px;
+
+}
+#comment{
+    clear: left;
+    margin-left: 30px;
+}
+
+#comment-icon{
+    width: 20px;
+    height: 20px;
+}
+
+#comment-list li ul{
+   /* display: none;*/
+    margin-left: 30px;
+}
+#comment-list li ul div{
+    margin-left: 70px;
+}
+#comment-list li div{
+    /* display: none;*/
+    margin-left: 70px;
+}
+
+.blog-comment input{
+    background-color: #6dd5fa;
+    color: white;
+    width: 80px;
+    height: 30px;
+    border-radius: 10px;
+    border: none;
+    margin-left: 0px;
+    line-height: 30px;
+    text-align: center;
+
+}
+
+textarea {
+
+    width: 570px;
+    height: 55px;
+    margin-left: 4px;
+    margin-top: 5px;
+
+}
+.blog-comment img{
+    width: 55px;
+    height: 55px;
+    border-radius: 20px;
+    margin-left: 30px;
+    margin-right: 1px;
+    margin-top: 2px;
+}
+
+
+#commentBtn{
+
+    float: right;
+    padding-top: 20px;
+    margin-right: 30px;
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.guet.popular_blog.mapper.UserMapper">
+    <select id="getUserById" parameterType="int" resultType="user">
+        select * from t_admin where id=#{value}
+    </select>
+    <select id="viewUser" resultType="user">
+        select * from t_admin
+    </select>
+
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM t_admin WHERE UserId=#{value}
+    </delete>
+
+    <insert id="addUser" parameterType="user">
+        INSERT INTO t_admin(UserName,Password,RealName,Email,State,CreateTime) VALUES (#{username},#{password},
+        #{realName},#{email},#{state},#{createTime})
+    </insert>
+
+    <update id="updateUser" parameterType="user">
+        update t_admin SET Password=#{password},UserName=#{username},RealName=#{realName},Email=#{email} WHERE UserId=#{userId}
+    </update>
+</mapper>

@@ -4,6 +4,7 @@ import cn.edu.guet.popular_blog.dto.LoginDTO;
 import cn.edu.guet.popular_blog.pojo.Admin;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author pangjian
@@ -18,4 +19,5 @@ public interface AdminMapper extends BaseMapper<Admin> {
 
     void insertOneAdmin(String username, String password);
 
+    Admin login(@Param("username")String username,@Param("password")String passwprd);
 }

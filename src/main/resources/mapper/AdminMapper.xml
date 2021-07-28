@@ -10,4 +10,8 @@
         {call proc_register(#{username,mode=IN},#{password,mode=IN})}
     </select>
 
+    <select id="login" resultType="cn.edu.guet.popular_blog.pojo.Admin">
+    select  * from t_admin where username=#{username} and password=#{password} and enabled=0
+    </select>
+
 </mapper>
